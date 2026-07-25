@@ -4,26 +4,37 @@
 
 `Chinese-Chess-AI-Pro` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
 
-> **Note on Engine Migration**: The project originally used ElephantEye (Eleeye). It has now been completely upgraded and migrated to **Pikafish** (the state-of-the-art Xiangqi engine based on Stockfish and NNUE neural network evaluation), compiled to multi-threaded WebAssembly with `pthread` and `SharedArrayBuffer` support.
-
 ---
 
 ## 1. Technical Innovations & Engineering Highlights
 
-* **Pikafish C++ Engine & Multi-threaded WASM**:
-  Cross-compiled official Pikafish (C++17) using Emscripten with `pthread` and `SharedArrayBuffer` support. It allocates approximately 90% of available CPU logical cores in the browser for high-performance multi-core parallel search.
+* **C++17 to WebAssembly Compilation & Multi-core Parallelism (`pthread` & `SharedArrayBuffer`)**:
+  Cross-compiles the C++17 engine core into WebAssembly binaries using Emscripten. Utilizes `SharedArrayBuffer` and `WebAssembly pthreads` shared memory to automatically allocate ~90% of available logical CPU cores for multi-threaded parallel Alpha-Beta search locally in the browser.
 
-* **NNUE Neural Network Evaluation**:
-  Loads the official 51MB NNUE weights (`pikafish.nnue`) directly in WebAssembly memory, delivering grandmaster-level position evaluation and search depth locally in the browser without any backend computation server.
+* **NNUE Neural Network Evaluation (HalfKA_v2_hm Feature Network)**:
+  Integrates the specialized HalfKA_v2_hm neural network feature extraction network, providing master-level position evaluation and piece valuation down to centipawn precision.
 
-* **Web Worker Thread Decoupling & UCI Protocol**:
-  The engine runs in a dedicated Web Worker using the Universal Chess Interface (UCI) protocol, completely decoupling heavy AI calculation from the UI thread to ensure a smooth 60fps interaction.
+* **256MB Zobrist Lock-less High-Concurrency Transposition Table**:
+  Allocates a 256MB Zobrist transposition table in WebAssembly memory for position deduplication, coupled with Principal Variation Search (PVS), Quiescence Search, Null Move Pruning, and History Heuristics to avoid duplicate sub-tree searching.
 
-* **GitHub Pages & Browser COOP / COEP Compatibility**:
-  Integrated with `coi-serviceworker.js` and a custom local development server (`server.py`) to inject `Cross-Origin-Opener-Policy: same-origin` (COOP) and `Cross-Origin-Embedder-Policy: require-corp` (COEP) headers, enabling `SharedArrayBuffer` on static web hosts like GitHub Pages.
+* **Bitboard Operations & WASM SIMD128 Vector Acceleration**:
+  Employs 64-bit/128-bit Bitboards for fast bitwise move generation, combined with Emscripten SIMD128 vector instructions to accelerate neural network feature processing and boost NPS (Nodes Per Second).
 
-* **Rule Authority Engine**:
-  Pikafish handles rule validation (`pikafish_validate_move`) and legal move counting (`pikafish_legal_move_count`), guaranteeing 100% adherence to standard Xiangqi rules.
+* **Web Worker Thread Decoupling & Standard UCI Protocol**:
+  Search and move validation run entirely in a dedicated background Web Worker, communicating asynchronously via the Universal Chess Interface (UCI) protocol to maintain a smooth 60fps UI rendering rate.
+
+* **GitHub Pages Cross-Origin Isolation (COOP / COEP) Static Deployment**:
+  Integrates `coi-serviceworker.js` to automatically inject `Cross-Origin-Opener-Policy: same-origin` (COOP) and `Cross-Origin-Embedder-Policy: require-corp` (COEP) headers, enabling zero-server-cost pure client-side deployment on static web hosts like GitHub Pages.
+
+---
+
+## 2. NNUE Asset Management & Origin
+
+Strictly adheres to **DRY (Don't Repeat Yourself)** architecture principles, storing the 51MB NNUE weights in a single dedicated asset folder:
+
+* **Location**: [`nnue/pikafish-9e20a9a44415.nnue`](nnue/pikafish-9e20a9a44415.nnue)
+* **Standard Naming**: Retains the official 12-character SHA256 hash (`9e20a9a44415`) for version tracking and automatic browser Cache Busting.
+* **Official Origin**: Sourced from official releases (see [`third-party/pikafish/scripts/net.sh`](third-party/pikafish/scripts/net.sh)).
 
 ---
 
@@ -77,11 +88,12 @@ The application follows a **"View UI - Business Rules - Engine Computation" 3-la
 
 ---
 
-## 5. Open Source License & Compliance
+## 5. Appendix: Open Source License & Migration History
 
 This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
 
-- **Pikafish Engine**: Copyright (C) official-pikafish / Stockfish authors, licensed under GPLv3. See [LICENSE](LICENSE) or [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt).
-- **xiangqi.js**: BSD 2-Clause License. See [third-party/xiangqi.js](third-party/xiangqi.js).
-- **xiangqiboardjs**: MIT License. See [third-party/xiangqiboardjs](third-party/xiangqiboardjs).
+* **Engine Migration History**: The project originally used ElephantEye (Eleeye). It has now been completely upgraded and migrated to **Pikafish** (the state-of-the-art Xiangqi engine based on Stockfish and NNUE neural network evaluation).
+* **Pikafish Engine Core**: Copyright (C) official-pikafish / Stockfish authors, licensed under GPLv3. See [LICENSE](LICENSE) or [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt).
+* **xiangqi.js Rule Engine**: BSD 2-Clause License. See [third-party/xiangqi.js](third-party/xiangqi.js).
+* **xiangqiboardjs Component**: MIT License. See [third-party/xiangqiboardjs](third-party/xiangqiboardjs).
 

@@ -4,26 +4,37 @@
 
 `Chinese-Chess-AI-Pro` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 运行的高性能中国象棋对弈与算力分析系统。
 
-> **引擎升级迁移说明**：项目原先使用象眼（ElephantEye）引擎，现已全面升级并完整迁移至 **Pikafish**（基于 Stockfish 和 NNUE 神经网络评估的顶级中国象棋引擎），并编译为支持 `pthread` 多线程与 `SharedArrayBuffer` 的 WebAssembly 二进制。
+---
+
+## 1. 核心技术架构与硬核工程亮点
+
+* **C++17 到 WebAssembly 编译与多核并行 (`pthread` & `SharedArrayBuffer`)**：
+  使用 Emscripten 将 C++17 算力核心交叉编译为 WASM 二进制产物。利用 `SharedArrayBuffer` 与 `WebAssembly pthreads` 共享内存技术，在浏览器本地自动分配约 90% 的 CPU 逻辑核心进行多线程并行 Alpha-Beta 搜索。
+
+* **NNUE 神经网络评估（HalfKA_v2_hm 特征提取网）**：
+  集成中国象棋专属的 HalfKA_v2_hm 半皇/半将神经网络特征提取网，将局势评估精确至厘分级别，实现大师级位置感与棋局掌控。
+
+* **256MB Zobrist 无锁高并发哈希置换表 (Lock-less Hash TT)**：
+  在 WASM 内存中分配合适的 256MB Zobrist 局势去重缓存，配合 PVS (Principal Variation Search) 主要变例搜索、静态搜索 (Quiescence Search)、空步剪枝 (Null Move Pruning) 与历史启发 (History Heuristics)，避免重复搜寻相同子树。
+
+* **Bitboard 位棋盘与 WASM SIMD128 向量指令集加速**：
+  采用 64 位/128 位 Bitboard 位棋盘进行高效位运算，结合 Emscripten SIMD128 向量指令集加速神经网络特征并行计算，极大地提升了每秒搜寻节点数 (NPS)。
+
+* **Web Worker 线程解耦与 UCI 标准协议通信**：
+  算力搜索与规则校验完全在独立的后台 Web Worker 中运行，基于标准 Universal Chess Interface (UCI) 协议进行异步通信，主 UI 线程维持 60fps 极速顺畅响应。
+
+* **GitHub Pages 跨源隔离 (COOP / COEP) 静态部署**：
+  集成 `coi-serviceworker.js` 自动注入 `Cross-Origin-Opener-Policy: same-origin` (COOP) 与 `Cross-Origin-Embedder-Policy: require-corp` (COEP) 响应头，突破浏览器安全限制，实现在 GitHub Pages 等静态托管平台上零服务端算力纯前端开箱即用。
 
 ---
 
-## 1. 核心技术创新与工程亮点
+## 2. 神经网络评估网络 (NNUE) 资产管理与溯源
 
-* **Pikafish C++ 引擎与多线程 WebAssembly**：
-  使用 Emscripten 将官方 Pikafish (C++17) 源码编译为带 `pthread` 线程池的 WASM 产物，在浏览器本地自动调用约 90% 的逻辑 CPU 核心进行高效多核并行搜索。
+本项目严格遵循 **DRY (Don't Repeat Yourself)** 架构原则，将 51MB 神经网络评估权重集中存储在根目录的资产文件夹中：
 
-* **NNUE 神经网络估值**：
-  在 WASM 内存中直接加载 51MB 官方 NNUE 评估权重文件 (`pikafish.nnue`)，无需后端算力服务器即可实现大师级棋局估值与极深搜索。
-
-* **Web Worker 线程解耦与 UCI 协议通信**：
-  引擎常驻运行在独立 Web Worker 中，基于标准 Universal Chess Interface (UCI) 协议与前端进行异步通信，主 UI 线程维持 60fps 顺畅响应。
-
-* **GitHub Pages 跨源隔离兼容性 (COOP / COEP)**：
-  集成 `coi-serviceworker.js` 与 Python 开发服务器 (`server.py`)，注入 `Cross-Origin-Opener-Policy: same-origin` (COOP) 与 `Cross-Origin-Embedder-Policy: require-corp` (COEP) 响应头，在 GitHub Pages 等静态托管平台上激活 `SharedArrayBuffer`。
-
-* **规则权威引擎**：
-  由 Pikafish 接管着法合法性校验 (`pikafish_validate_move`) 与合法着法计数 (`pikafish_legal_move_count`)，保证 100% 符合象棋规则。
+* **存放位置**：[`nnue/pikafish-9e20a9a44415.nnue`](nnue/pikafish-9e20a9a44415.nnue)
+* **规范命名**：文件名保留了官方 12 位 SHA256 哈希值（`9e20a9a44415`），支持版本追溯与浏览器 Cache Busting 自动刷新。
+* **官方溯源**：权重文件源自官方神经网络发布节点（详见 [`third-party/pikafish/scripts/net.sh`](third-party/pikafish/scripts/net.sh)）。
 
 ---
 
@@ -77,11 +88,12 @@ python3 server.py
 
 ---
 
-## 5. 开源许可证与合规声明
+## 5. 附录：开源许可证与引擎演进历史
 
 本项目遵循 **GNU General Public License v3.0 (GPLv3)** 开源许可。
 
-- **Pikafish 引擎**：Copyright (C) official-pikafish / Stockfish authors，遵循 GPLv3 协议。详见 [LICENSE](LICENSE) 或 [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt)。
-- **xiangqi.js**：遵循 BSD 2-Clause 协议。详见 [third-party/xiangqi.js](third-party/xiangqi.js)。
-- **xiangqiboardjs**：遵循 MIT 协议。详见 [third-party/xiangqiboardjs](third-party/xiangqiboardjs)。
+* **引擎演进历史**：项目最初采用 ElephantEye (象眼) 引擎，现已全面升级并完整迁移至基于 Stockfish 架构与 NNUE 神经网络的 **Pikafish** C++17 开源引擎核心。
+* **Pikafish 引擎核心**：Copyright (C) official-pikafish / Stockfish authors，遵循 GPLv3 协议。详见 [LICENSE](LICENSE) 或 [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt)。
+* **xiangqi.js 规则库**：遵循 BSD 2-Clause 协议。详见 [third-party/xiangqi.js](third-party/xiangqi.js)。
+* **xiangqiboardjs 棋盘组件**：遵循 MIT 协议。详见 [third-party/xiangqiboardjs](third-party/xiangqiboardjs)。
 
