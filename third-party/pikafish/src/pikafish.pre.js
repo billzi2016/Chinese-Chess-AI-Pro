@@ -128,7 +128,7 @@
     } else if (line === 'uciok') {
       var logicalCores = Math.max(1, Number(globalScope.navigator && globalScope.navigator.hardwareConcurrency) || 1);
       configuredThreads = Math.max(1, Math.floor(logicalCores * 0.9));
-      send('setoption name EvalFile value /pikafish.nnue');
+      send('setoption name EvalFile value /pikafish-9e20a9a44415.nnue');
       send('setoption name Threads value ' + configuredThreads);
       send('setoption name Hash value 256');
       send('isready');
@@ -209,8 +209,8 @@
 
   Module.postRun = function () {
     var nnueUrl = Module.locateFile
-      ? Module.locateFile('pikafish.nnue', '')
-      : 'pikafish.nnue';
+      ? Module.locateFile('nnue/pikafish-9e20a9a44415.nnue', '')
+      : 'nnue/pikafish-9e20a9a44415.nnue';
 
     fetch(nnueUrl, { credentials: 'same-origin' })
       .then(function (response) {
@@ -218,7 +218,7 @@
         return response.arrayBuffer();
       })
       .then(function (buffer) {
-        Module.FS.writeFile('/pikafish.nnue', new Uint8Array(buffer));
+        Module.FS.writeFile('/pikafish-9e20a9a44415.nnue', new Uint8Array(buffer));
         Module.ccall('init_pikafish', 'number', [], []);
         running = true;
         poll();
