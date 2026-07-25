@@ -1,6 +1,6 @@
-**English Version** | [中文文档](README_CN.md) | 🌐 **Live Demo (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
-
 # Chinese-Chess-AI-Pro (WebAssembly-Powered High-Performance Xiangqi AI)
+
+**English Version** | [中文文档](README_CN.md) | **Live Demo (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
 `Chinese-Chess-AI-Pro` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
 
