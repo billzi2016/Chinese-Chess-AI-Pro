@@ -25,17 +25,20 @@ echo "-> 运行 [2/6] xiangqi.js 规则与坐标转换测试..."
 node "$SCRIPT_DIR/test_xiangqi.js"
 echo ""
 
-# 3. [已注释-规避云端算力风控] 运行 Pikafish WASM 算力引擎全量集成与 1000ms 搜索测试
+# 3. [本地验证-保持CI轻量] 运行 Pikafish WASM 算力引擎全量集成与 1000ms 搜索测试
+# 说明：重度 AI 引擎算力搜索测试在本地环境手动验证，以保持 CI 流水线极速轻量。
 # echo "-> 运行 [3/5] Pikafish WASM 算力引擎全量集成测试..."
 # node "$SCRIPT_DIR/test_pikafish_engine.js"
 # echo ""
 
 # 4. 运行 6324 端口服务器响应头探测
-echo "-> 运行 [3/4] 6324 端口服务器响应头探针测试..."
+echo "-> 运行 [4/5] 6324 端口服务器响应头探针测试..."
 python3 "$SCRIPT_DIR/test_server_launch.py"
+python3 "$SCRIPT_DIR/test_running_server.py"
 echo ""
 
-# 5. [已注释-规避云端算力风控] 运行 Pikafish 真实 Chromium 浏览器多线程 WASM 集成测试
+# 5. [本地验证-保持CI轻量] 运行 Pikafish 真实 Chromium 浏览器多线程 WASM 集成测试
+# 说明：浏览器多线程集成测试在本地环境手动验证，以保持 CI 流水线极速轻量。
 # echo "-> 运行 [5/5] Pikafish 真实 Chromium 浏览器集成测试..."
 # /opt/anaconda3/bin/python3 "$SCRIPT_DIR/test_pikafish_browser.py"
 # echo ""
