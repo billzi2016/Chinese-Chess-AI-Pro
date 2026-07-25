@@ -216,9 +216,14 @@
   }
 
   Module.postRun = function () {
-    var nnueUrl = Module.locateFile
-      ? Module.locateFile('nnue/pikafish-9e20a9a44415.nnue', '')
-      : 'nnue/pikafish-9e20a9a44415.nnue';
+    var nnueUrl = 'nnue/pikafish-9e20a9a44415.nnue';
+    if (typeof self !== 'undefined' && self.location && self.location.href) {
+      try {
+        nnueUrl = new URL('../../nnue/pikafish-9e20a9a44415.nnue', self.location.href).href;
+      } catch (e) {}
+    } else if (Module.locateFile) {
+      nnueUrl = Module.locateFile('nnue/pikafish-9e20a9a44415.nnue', '');
+    }
 
     fetch(nnueUrl, { credentials: 'same-origin' })
       .then(function (response) {
