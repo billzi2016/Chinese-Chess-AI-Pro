@@ -31,10 +31,15 @@ jobs:
         with:
           version: 3.1.64
 
-      - name: 编译象眼 C++ 引擎为 WebAssembly
+      - name: 编译 Pikafish C++ 引擎为 WebAssembly
         run: |
           chmod +x scripts/build_wasm.sh
           ./scripts/build_wasm.sh
+
+      - name: 安装 Playwright 依赖与 Chromium 浏览器
+        run: |
+          pip install playwright
+          playwright install chromium --with-deps
 
       - name: 运行全量单元测试流水线
         run: |

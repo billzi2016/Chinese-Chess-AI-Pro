@@ -2,35 +2,37 @@
 
 # Chinese-Chess-AI (WebAssembly-Powered High-Performance Xiangqi AI)
 
-`Chinese-Chess-AI` is a modern, high-performance Chinese Chess (Xiangqi) gameplay and AI computation system running entirely on the front-end via WebAssembly (WASM). By cross-compiling a low-level C++ evaluation engine using Emscripten and leveraging Web Workers for complete decoupling of computation from the main UI thread, the application provides high-efficiency Alpha-Beta tree search and real-time UCCI analysis locally in the browser.
+`Chinese-Chess-AI` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
+
+> **Note on Engine Migration**: The project originally used ElephantEye (Eleeye). It has now been completely upgraded and migrated to **Pikafish** (the state-of-the-art Xiangqi engine based on Stockfish and NNUE neural network evaluation), compiled to multi-threaded WebAssembly with `pthread` and `SharedArrayBuffer` support.
 
 ---
 
 ## 1. Technical Innovations & Engineering Highlights
 
-* **C++ Engine to WebAssembly Cross-Compilation**:
-  Uses the Emscripten toolchain to compile the C++ Xiangqi evaluation engine into WASM binary bytecode. Supports Zobrist Transposition Tables, Bitboard evaluation, and Quiescence Search, achieving pure local, high-efficiency Alpha-Beta pruning in the browser.
+* **Pikafish C++ Engine & Multi-threaded WASM**:
+  Cross-compiled official Pikafish (C++17) using Emscripten with `pthread` and `SharedArrayBuffer` support. It allocates approximately 90% of available CPU logical cores in the browser for high-performance multi-core parallel search.
 
-* **Web Worker Thread Decoupling & UCCI Protocol Streaming**:
-  The computation-intensive WASM engine runs persistently inside a dedicated Web Worker, maintaining a smooth 60fps response on the main UI thread. Based on the Universal Chinese Chess Interface (UCCI) standard protocol, the system streams and parses engine output in real-time (`nodes`, `nps`, `time`, and `score`).
+* **NNUE Neural Network Evaluation**:
+  Loads the official 51MB NNUE weights (`pikafish.nnue`) directly in WebAssembly memory, delivering grandmaster-level position evaluation and search depth locally in the browser without any backend computation server.
 
-* **WASM Cross-Origin Isolation Server (COOP / COEP)**:
-  Includes a multi-process Python development server that automatically injects `Cross-Origin-Opener-Policy: same-origin` (COOP) and `Cross-Origin-Embedder-Policy: require-corp` (COEP) headers, opening up high-precision Timers and an isolated memory runtime for WASM.
+* **Web Worker Thread Decoupling & UCI Protocol**:
+  The engine runs in a dedicated Web Worker using the Universal Chess Interface (UCI) protocol, completely decoupling heavy AI calculation from the UI thread to ensure a smooth 60fps interaction.
 
-* **Native CSS Design System & Modular Architecture**:
-  Utilizes native CSS variables (Design Tokens) combined with componentized style scoping, free of third-party UI framework overhead, delivering a visual interface that merges classical ink aesthetic with modern tech style.
+* **GitHub Pages & Browser COOP / COEP Compatibility**:
+  Integrated with `coi-serviceworker.js` and a custom local development server (`server.py`) to inject `Cross-Origin-Opener-Policy: same-origin` (COOP) and `Cross-Origin-Embedder-Policy: require-corp` (COEP) headers, enabling `SharedArrayBuffer` on static web hosts like GitHub Pages.
 
-* **Automated CI/CD Test Pipeline**:
-  Integrates a GitHub Actions automated workflow including Node.js WASM real 6-depth search assertion tests, UCCI output regex parsing unit tests, web server response header probe verification, and rule engine compliance checks.
+* **Rule Authority Engine**:
+  Pikafish handles rule validation (`pikafish_validate_move`) and legal move counting (`pikafish_legal_move_count`), guaranteeing 100% adherence to standard Xiangqi rules.
 
 ---
 
 ## 2. Core Highlights & Features
 
-* **Zero Server Computation Cost**: The ElephantEye (Eleeye) engine is compiled to WebAssembly, running efficiently in the player's local browser.
-* **Zero Main-Thread Lag**: Heavy engine computation is offloaded to Web Workers, ensuring single-core computation never blocks UI interaction.
-* **Modular CSS Architecture**: Design Tokens (CSS native variables) + localized component scoping prevent hardcoding and style pollution.
-* **Real-time AI Search Evaluation Panel**: The sidebar parses the UCCI text stream in real-time, displaying move number, side, source, notation, nodes count, NPS (Nodes Per Second), time, and evaluation score, **never displaying fake mock data**.
+* **Zero Server Computation Cost**: The Pikafish engine runs in WebAssembly with NNUE evaluation, fully executing in the local browser.
+* **Zero Main-Thread Lag**: Engine computation is offloaded to a Web Worker, ensuring 60fps UI responsiveness during deep searches.
+* **Modular CSS Architecture**: Design Tokens + localized component scoping prevent style pollution.
+* **Real-time UCI Engine Evaluation Panel**: Streams and parses UCI output in real-time (`nodes`, `nps`, `time`, `score`, `depth`), displaying authentic search metrics.
 
 ---
 
@@ -55,63 +57,31 @@ The application follows a **"View UI - Business Rules - Engine Computation" 3-la
 ```text
 +---------------------------------------------------------+
 |                    Web UI (View Layer)                  |
-|  xiangqiboard.js (DOM Board/River) + Modern Clean CSS   |
+|  xiangqiboard.js (DOM Board) + App State (js/app.js)    |
 +----------------------------+----------------------------+
-                             | (Event: Attempt Move)
+                             | (User Interaction / UCI)
                              v
 +---------------------------------------------------------+
-|                 xiangqi.js (Rule Engine)                |
-|  Move Legal Verification / FEN State / Check & Mate     |
+|             Web Worker & UCI Message Bridge             |
+|       (js/worker/pikafish-engine.js + pre-js bridge)    |
 +----------------------------+----------------------------+
-                             | (PostMessage: FEN + 'go movetime 5000')
+                             | (WASM / pthread / SharedArrayBuffer)
                              v
 +---------------------------------------------------------+
-|              Web Worker (Computation Bridge)            |
-|  eleeye.js + eleeye.wasm (WASM Engine, 5s Move Limit)   |
+|            Pikafish WASM Engine (C++17 Engine)          |
+|    - 51MB NNUE Eval Network (/pikafish.nnue)            |
+|    - Multi-thread Parallel Search (~90% CPU Cores)      |
+|    - UCI Protocol (go movetime 5000, info, bestmove)    |
 +---------------------------------------------------------+
 ```
 
 ---
 
-## 5. Open Source Attributions & Compliance
+## 5. Open Source License & Compliance
 
-This project is built upon the following open-source contributions:
+This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
 
-### 5.1 Core Engine: ElephantEye (Eleeye)
-* **Project Name**: ElephantEye (Eleeye Xiangqi Engine)
-* **Original Author**: Morning Yellow (黄晨)
-* **Source Location**: `third-party/eleeye`
-* **License**: **GNU Lesser General Public License v2.1 (LGPL v2.1)**
-* **Description**: Provides Xiangqi UCCI communication protocol, Bitboard evaluation functions, and Alpha-Beta pruning search core.
+- **Pikafish Engine**: Copyright (C) official-pikafish / Stockfish authors, licensed under GPLv3. See [LICENSE](LICENSE) or [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt).
+- **xiangqi.js**: BSD 2-Clause License. See [third-party/xiangqi.js](third-party/xiangqi.js).
+- **xiangqiboardjs**: MIT License. See [third-party/xiangqiboardjs](third-party/xiangqiboardjs).
 
-### 5.2 Rule Validation Library: xiangqi.js
-* **Project Name**: xiangqi.js
-* **Original Authors**: Jeff Hlywa (jhlywa) & lengyanyu258
-* **Project Repository**: [https://github.com/lengyanyu258/xiangqi.js](https://github.com/lengyanyu258/xiangqi.js)
-* **Source Location**: `third-party/xiangqi.js`
-* **License**: **BSD 2-Clause License**
-* **Description**: Provides standard Xiangqi FEN parsing, move generation, piece movement constraints, and checkmate detection.
-
-### 5.3 Board Render Library: xiangqiboardjs
-* **Project Name**: xiangqiboardjs
-* **Original Authors**: Chris Oakman & lengyanyu258
-* **Project Repository**: [https://github.com/lengyanyu258/xiangqiboardjs](https://github.com/lengyanyu258/xiangqiboardjs)
-* **Source Location**: `third-party/xiangqiboardjs`
-* **License**: **MIT License**
-* **Description**: Provides DOM 9x10 Xiangqi board rendering, pixel coordinate mapping, and move hint highlight logic.
-
----
-
-## 6. Specifications & Documentation
-
-* [specs/prd.md](specs/prd.md): Product Requirement Document (PRD), detailing architecture, feature priority, CSS Tokens, and UCCI protocol.
-* [specs/ui.md](specs/ui.md): UI & Interaction Specification, defining components, modal overlays, and AI evaluation panel.
-* [specs/project_tree.md](specs/project_tree.md): Directory structure description specifying module responsibilities.
-
----
-
-## 7. Open Source License
-
-This project is licensed under the MIT License.
-
-The overall project adheres strictly to the **LGPL v2.1** open-source license consistent with the original author of the ElephantEye engine. All third-party copyrights belong to their respective authors and abide by their original licenses (LGPL v2.1, BSD 2-Clause, MIT).

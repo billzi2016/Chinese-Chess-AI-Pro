@@ -37,7 +37,7 @@ runTest('马走日别马腿阻断检测', () => {
   // 初始局面下，红马在 h0 (8 * 9 + 7 = 79)，准备走到 g2 (7 * 9 + 6 = 69)，马腿在 h1 (79)，无阻挡
   // 测试一个被别马腿的动作：如果马腿在 70 (h2) 有子，则跳往 61 被阻断
   game.board[70] = { type: 'r', color: 'r' }; // 放置别腿子
-  const moveResult = game.move(79, 61);
+  const moveResult = game.applyMove(79, 61);
   assert.strictEqual(moveResult, null, '别马腿时应拒绝非法落子');
 });
 
@@ -62,7 +62,7 @@ runTest('仕/士九宫格范围界限检测', () => {
 runTest('悔棋 undo 状态恢复', () => {
   const game = new Xiangqi('rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w - - 0 1');
   // 炮二平五 (row 7 col 7 -> 70 到 row 7 col 4 -> 67)
-  const ucci = game.move(70, 67);
+  const ucci = game.applyMove(70, 67);
   assert.ok(ucci, '炮二平五应该执行成功');
   assert.strictEqual(game.turn, 'b');
 
