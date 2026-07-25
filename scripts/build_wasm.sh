@@ -1,36 +1,43 @@
 #!/usr/bin/env bash
-# ElephantEye 象眼 C++ 引擎编译为 WebAssembly 脚本
+# 将官方 Pikafish 编译为浏览器 pthread WebAssembly。
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-ELEEYE_DIR="$PROJECT_ROOT/third-party/eleeye"
+PIKAFISH_SRC="$PROJECT_ROOT/third-party/pikafish/src"
 WORKER_DIR="$PROJECT_ROOT/js/worker"
+OFFICIAL_SHA="97133eeb"
+OFFICIAL_DATE="20260721"
 
-echo "开始使用 Emscripten (emcc) 编译 ElephantEye 象眼 C++ 引擎为 WebAssembly..."
+if [[ ! -f "$WORKER_DIR/pikafish.nnue" ]]; then
+  echo "缺少 $WORKER_DIR/pikafish.nnue，请先下载官方匹配网络。"
+  exit 1
+fi
 
-emcc -O3 \
-  -I"$ELEEYE_DIR/base" \
-  -I"$ELEEYE_DIR/eleeye" \
-  "$ELEEYE_DIR/base/pipe.cpp" \
-  "$ELEEYE_DIR/eleeye/book.cpp" \
-  "$ELEEYE_DIR/eleeye/eleeye.cpp" \
-  "$ELEEYE_DIR/eleeye/evaluate.cpp" \
-  "$ELEEYE_DIR/eleeye/genmoves.cpp" \
-  "$ELEEYE_DIR/eleeye/hash.cpp" \
-  "$ELEEYE_DIR/eleeye/movesort.cpp" \
-  "$ELEEYE_DIR/eleeye/position.cpp" \
-  "$ELEEYE_DIR/eleeye/preeval.cpp" \
-  "$ELEEYE_DIR/eleeye/pregen.cpp" \
-  "$ELEEYE_DIR/eleeye/search.cpp" \
-  "$ELEEYE_DIR/eleeye/ucci.cpp" \
-  -s WASM=1 \
-  -s ALLOW_MEMORY_GROWTH=1 \
-  -s MODULARIZE=1 \
-  -s EXPORT_NAME="createEleeyeModule" \
-  -s EXPORTED_FUNCTIONS='["_init_eleeye_engine","_execute_ucci_command","_main"]' \
-  -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
-  -o "$WORKER_DIR/eleeye.js"
+if [[ ! -e "$PIKAFISH_SRC/pikafish.nnue" ]]; then
+  ln -s ../../../js/worker/pikafish.nnue "$PIKAFISH_SRC/pikafish.nnue"
+fi
 
-echo "象眼 WebAssembly 编译完成：$WORKER_DIR/eleeye.js 与 $WORKER_DIR/eleeye.wasm"
+echo "使用官方 Pikafish $OFFICIAL_SHA 编译 pthread WebAssembly..."
+
+# Pikafish 的 Makefile 不跟踪 --pre-js 文件；更新桥接单元时间戳，确保胶水脚本
+# 或链接参数变化时会重新链接最终的 JS/WASM，而不是误报 “Nothing to be done”。
+touch "$PIKAFISH_SRC/browser_bridge.cpp"
+
+emmake make -C "$PIKAFISH_SRC" -j"$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 4)" all \
+  ARCH=wasm32 \
+  COMP=gcc \
+  CXX=em++ \
+  KERNEL=Linux \
+  TARGET_KERNEL=Linux \
+  OS=GNU/Linux \
+  GIT_SHA="$OFFICIAL_SHA" \
+  GIT_DATE="$OFFICIAL_DATE" \
+  GIT_DIFFINDEX= \
+  EXE="$WORKER_DIR/pikafish-engine.js" \
+  EXTRALDFLAGS="-sENVIRONMENT=worker -sPTHREAD_POOL_SIZE=navigator.hardwareConcurrency -sINVOKE_RUN=0 -sEXIT_RUNTIME=0 -sEXPORTED_FUNCTIONS=_init_pikafish,_uci_command,_pikafish_validate_move,_pikafish_legal_move_count -sEXPORTED_RUNTIME_METHODS=ccall,FS --pre-js=$PIKAFISH_SRC/pikafish.pre.js"
+
+echo "Pikafish WASM 已生成："
+echo "  $WORKER_DIR/pikafish-engine.js"
+echo "  $WORKER_DIR/pikafish-engine.wasm"

@@ -1,6 +1,6 @@
 /**
- * xiangqi.js - 中国象棋规则裁判与状态维护引擎
- * 遵循标准中国象棋规则与 FEN 规范
+ * xiangqi.js - 中国象棋局面与 FEN 状态容器
+ * 合法性、将死与困毙由 Pikafish 统一裁定。
  *
  * @author Jeff Hlywa (jhlywa) & lengyanyu258
  * @license BSD 2-Clause License
@@ -97,7 +97,7 @@
 
   // UCCI 着法转换为数组索引 (例如 "h2e2" -> {from: 79, to: 76})
   Xiangqi.prototype.ucciToSq = function (ucci) {
-    if (!ucci || ucci.length < 4) return null;
+    if (!/^[a-i][0-9][a-i][0-9]$/.test(ucci || '')) return null;
     const fromCol = ucci.charCodeAt(0) - 'a'.charCodeAt(0);
     const fromRow = 9 - parseInt(ucci.charAt(1), 10);
     const toCol = ucci.charCodeAt(2) - 'a'.charCodeAt(0);
@@ -197,11 +197,10 @@
     }
   };
 
-  // 简单的合法落子检测与移动执行
-  Xiangqi.prototype.move = function (fromSq, toSq) {
+  // 仅执行已经由 Pikafish 验证或生成的着法，不承担规则裁定。
+  Xiangqi.prototype.applyMove = function (fromSq, toSq) {
     const piece = this.board[fromSq];
     if (!piece || piece.color !== this.turn) return null;
-    if (!this.isLegalMove(fromSq, toSq)) return null;
 
     const target = this.board[toSq];
     if (target && target.color === piece.color) return null;
@@ -215,6 +214,12 @@
     this.turn = (this.turn === RED) ? BLACK : RED;
 
     return ucciMove;
+  };
+
+  Xiangqi.prototype.applyUciMove = function (ucciMove) {
+    const squares = this.ucciToSq(ucciMove);
+    if (!squares) return null;
+    return this.applyMove(squares.from, squares.to);
   };
 
   // 撤回一步 (悔棋)

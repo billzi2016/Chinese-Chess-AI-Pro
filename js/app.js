@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', function () {
   let worker = null;
   let latestInfo = null;
   let lastMove = null;
+  let pendingHumanMove = null;
+  let engineThinking = false;
 
-  // 初始化 ElephantEye Worker 算力桥接
+  // 初始化 Pikafish Worker 算力桥接
   try {
-    worker = new Worker('./js/worker/eleeye.worker.js');
+    worker = new Worker('./js/worker/pikafish-engine.js');
     worker.postMessage({ type: 'INIT' });
 
     worker.onmessage = function (e) {
@@ -34,8 +36,15 @@ document.addEventListener('DOMContentLoaded', function () {
           updateAiCurrentStatus(`AI Alpha-Beta 剪枝搜寻中... (深度: ${latestInfo.depth || '-'})`);
         }
       } else if (data.type === 'BEST_MOVE') {
+        engineThinking = false;
         handleAiBestMove(data.move, latestInfo);
         latestInfo = null;
+      } else if (data.type === 'VALIDATION_RESULT') {
+        handleValidatedHumanMove(data);
+      } else if (data.type === 'ERROR') {
+        engineThinking = false;
+        pendingHumanMove = null;
+        updateAiCurrentStatus(`引擎错误：${data.message}`);
       }
     };
   } catch (err) {
@@ -109,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const sq = game.ucciToSq(ucciMove);
     if (!sq) return;
 
-    const moveResult = game.move(sq.from, sq.to);
+    const moveResult = game.applyUciMove(ucciMove);
     if (moveResult) {
       moveCount++;
       lastMove = { from: sq.from, to: sq.to };
@@ -164,6 +173,8 @@ document.addEventListener('DOMContentLoaded', function () {
     playerSide = side || 'r';
     moveCount = 0;
     lastMove = null;
+    pendingHumanMove = null;
+    engineThinking = false;
 
     game = new Xiangqi();
     window.gameInstance = game;
@@ -187,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // 处理人类玩家落子
   function handleHumanMove(from, to) {
-    if (gameMode === 'eve') {
+    if (gameMode === 'eve' || pendingHumanMove || engineThinking) {
       // 机机对战模式下禁止人类手动操控
       return;
     }
@@ -198,10 +209,31 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
 
-    const moveResult = game.move(from, to);
+    if (!worker) return;
+
+    const uciMove = game.sqToUcci(from, to);
+    pendingHumanMove = { from: from, to: to, move: uciMove };
+    worker.postMessage({
+      type: 'VALIDATE',
+      fen: game.fen(),
+      move: uciMove
+    });
+  }
+
+  function handleValidatedHumanMove(result) {
+    if (!pendingHumanMove || result.move !== pendingHumanMove.move) return;
+
+    const candidate = pendingHumanMove;
+    pendingHumanMove = null;
+    if (!result.legal) {
+      updateAiCurrentStatus('该着法不符合当前局面规则，请重新落子。');
+      return;
+    }
+
+    const moveResult = game.applyUciMove(candidate.move);
     if (moveResult) {
       moveCount++;
-      lastMove = { from: from, to: to };
+      lastMove = { from: candidate.from, to: candidate.to };
       board.render(game, lastMove);
       appendMoveToTable('玩家', moveResult, null);
 
@@ -216,10 +248,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // 触发象眼 AI 思考
+  // 触发 Pikafish AI 思考
   function triggerAiThink() {
     const currentFen = game.fen();
     if (worker) {
+      engineThinking = true;
       worker.postMessage({
         type: 'SEARCH',
         fen: currentFen,

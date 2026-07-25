@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chinese-Chess-AI (WASM 纯本地 AI 版)</title>
+    <link rel="icon" href="data:,">
+    <script src="./coi-serviceworker.js"></script>
     <link rel="stylesheet" href="./styles/main.css">
 </head>
 <body>
@@ -83,7 +85,7 @@
                     </div>
                 </div>
 
-                <!-- 象眼象棋渲染容器 -->
+                <!-- 中国象棋渲染容器 -->
                 <div id="board-container"></div>
             </div>
 
@@ -124,7 +126,7 @@
 
         <!-- 底部全套硬核技术栈说明区块 -->
         <div id="engine-note">
-            <p class="engine-tech">系统采用 Emscripten WebAssembly 字节码编译、Zobrist 哈希置换表 (Transposition Table) 与 C++ Alpha-Beta 树搜索算法，在浏览器本地实现微秒级计算。基于标准 UCCI 异步通信协议与 Web Worker 多线程解耦，实时解析节点数、NPS、耗时与评估分；配置 COOP / COEP 跨源隔离标头与原生 CSS Design System 模块化架构。</p>
+            <p class="engine-tech">系统采用 NNUE 神经网络评估、Emscripten WebAssembly、共享内存 pthread 与置换表，在浏览器本地使用约 90% 逻辑核心搜索。基于标准 UCI 协议与 Web Worker 解耦，实时解析节点数、NPS、耗时与评估分；GitHub Pages 通过 COOP / COEP 隔离运行，不依赖服务器算力。</p>
         </div>
     </div>
 
