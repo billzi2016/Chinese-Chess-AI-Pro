@@ -1,4 +1,4 @@
-[English Version](README.md) | **中文文档** | 🌐 **在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI/](https://billzi2016.github.io/Chinese-Chess-AI/)
+[English Version](README.md) | **中文文档** | 🌐 **在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
 # Chinese-Chess-AI (WebAssembly 驱动的高性能中国象棋 AI 系统)
 

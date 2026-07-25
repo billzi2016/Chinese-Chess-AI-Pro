@@ -11,8 +11,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -21,19 +21,27 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 检出源码
         uses: actions/checkout@v4
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: 安装并配置 Emscripten (emsdk)
+        uses: mymindstorm/setup-emsdk@v14
         with:
-          enablement: true
+          version: 3.1.64
 
-      - name: Upload artifact
+      - name: 编译 Pikafish C++ WASM 引擎与神经网络包装
+        run: |
+          chmod +x scripts/build_wasm.sh
+          ./scripts/build_wasm.sh
+
+      - name: 设置 GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: 上传静态 Pages 产物
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
 
-      - name: Deploy to GitHub Pages
+      - name: 部署至 GitHub Pages 站点
         id: deployment
         uses: actions/deploy-pages@v4
