@@ -13,6 +13,14 @@
   var configuredThreads = 1;
   var currentStats = null;
 
+  if (typeof self === 'undefined') {
+    if (typeof globalThis !== 'undefined') {
+      globalThis.self = globalThis;
+    } else if (typeof global !== 'undefined') {
+      global.self = global;
+    }
+  }
+
   var globalScope = typeof self !== 'undefined' ? self : globalThis;
 
   Module.locateFile = function (pathName, prefix) {

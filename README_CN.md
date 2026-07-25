@@ -1,6 +1,8 @@
 # Chinese-Chess-AI-Pro (WebAssembly 驱动的高性能中国象棋 AI 系统)
 
-[English Version](README.md) | **中文文档** | **在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
+[English Version](README.md) | **中文文档**
+
+**在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
 `Chinese-Chess-AI-Pro` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 运行的高性能中国象棋对弈与算力分析系统。
 
