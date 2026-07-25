@@ -4,7 +4,7 @@
 
 **Live Demo (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
-`Chinese-Chess-AI-Pro` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
+`Chinese-Chess-AI-Pro` is a modern, high-performance multi-threaded (defeats all human players) Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM) and NNUE neural network evaluation.
 
 ---
 

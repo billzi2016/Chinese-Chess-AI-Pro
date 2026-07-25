@@ -4,7 +4,7 @@
 
 **在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
-`Chinese-Chess-AI-Pro` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 运行的高性能中国象棋对弈与算力分析系统。
+`Chinese-Chess-AI-Pro` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 多线程（击败所有人类）与神经网络评估 (NNUE) 运行的高性能中国象棋对弈与算力分析系统。
 
 ---
 
