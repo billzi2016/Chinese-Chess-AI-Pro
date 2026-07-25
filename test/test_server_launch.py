@@ -17,25 +17,21 @@ import server
 
 
 class TestServerLaunch(unittest.TestCase):
-    """测试 server.py 绑定 6324 端口、响应 200 及 COOP/COEP 的启动能力"""
+    """测试 server.py 动态端口绑定、响应 200 及 COOP/COEP 的启动能力"""
 
     @classmethod
     def setUpClass(cls):
-        cls.port = 6324
         cls.host = "127.0.0.1"
+        cls.port = server.find_first_available_port(cls.host, 6324)
 
-        # 如果端口目前空闲，则启动测试服务
-        if server.port_is_free(cls.host, cls.port):
-            cls.httpd_started = True
-            handler = server.functools.partial(
-                server.MultiProcessStaticHandler, directory=str(PROJECT_ROOT)
-            )
-            cls.httpd = server.ThreadingHTTPServer((cls.host, cls.port), handler)
-            cls.server_thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
-            cls.server_thread.start()
-            time.sleep(0.3)
-        else:
-            cls.httpd_started = False
+        cls.httpd_started = True
+        handler = server.functools.partial(
+            server.MultiProcessStaticHandler, directory=str(PROJECT_ROOT)
+        )
+        cls.httpd = server.ThreadingHTTPServer((cls.host, cls.port), handler)
+        cls.server_thread = threading.Thread(target=cls.httpd.serve_forever, daemon=True)
+        cls.server_thread.start()
+        time.sleep(0.3)
 
     @classmethod
     def tearDownClass(cls):

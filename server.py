@@ -56,11 +56,19 @@ def port_is_free(host: str, port: int) -> bool:
         return True
 
 
+def find_first_available_port(host: str, start_port: int = DEFAULT_PORT, max_attempts: int = 100) -> int:
+    """从 start_port 开始递增扫描，找到第一个可绑定的空闲端口"""
+    for port in range(start_port, start_port + max_attempts):
+        if port_is_free(host, port):
+            return port
+    raise RuntimeError(f"在 {start_port} 至 {start_port + max_attempts - 1} 范围内未找到可用端口")
+
+
 def parse_args() -> argparse.Namespace:
     """解析命令行参数"""
     parser = argparse.ArgumentParser(description="Chinese-Chess-AI 开发服务器")
     parser.add_argument("--host", default=DEFAULT_HOST, help=f"监听地址，默认 {DEFAULT_HOST}")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"指定端口，默认 {DEFAULT_PORT}")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"指定起始端口，默认 {DEFAULT_PORT}")
     parser.add_argument("--mode", choices=["process", "thread"], default="process", help="并发模式：process (多进程) 或 thread (多线程)")
     return parser.parse_args()
 
@@ -72,9 +80,14 @@ def main() -> None:
 
     args = parse_args()
 
-    if not port_is_free(args.host, args.port):
-        print(f"错误: 端口 {args.port} 已被占用，请先释放端口或指定其他端口。", file=sys.stderr)
-        sys.exit(1)
+    target_port = args.port
+    if not port_is_free(args.host, target_port):
+        print(f"提示: 端口 {target_port} 被占用，开始从 {target_port} 依次扫描可用端口...", flush=True)
+        try:
+            target_port = find_first_available_port(args.host, target_port)
+        except RuntimeError as err:
+            print(f"错误: {err}", file=sys.stderr)
+            sys.exit(1)
 
     handler = functools.partial(MultiProcessStaticHandler, directory=os.fspath(PROJECT_ROOT))
 
@@ -85,9 +98,9 @@ def main() -> None:
         server_class = ThreadingHTTPServer
         mode_desc = "多线程并发 (Threading)"
 
-    server = server_class((args.host, args.port), handler)
+    server = server_class((args.host, target_port), handler)
 
-    url = f"http://{args.host}:{args.port}/"
+    url = f"http://{args.host}:{target_port}/"
     print(f"Chinese-Chess-AI 本地服务已启动 ({mode_desc})", flush=True)
     print(f"服务地址: {url}", flush=True)
     print("按下 Ctrl+C 可停止服务。", flush=True)
