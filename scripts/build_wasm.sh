@@ -10,13 +10,11 @@ WORKER_DIR="$PROJECT_ROOT/js/worker"
 OFFICIAL_SHA="97133eeb"
 OFFICIAL_DATE="20260721"
 
-if [[ ! -f "$WORKER_DIR/pikafish.nnue" ]]; then
-  echo "缺少 $WORKER_DIR/pikafish.nnue，请先下载官方匹配网络。"
-  exit 1
-fi
+NNUE_FILE="$PROJECT_ROOT/nnue/pikafish-9e20a9a44415.nnue"
 
-if [[ ! -e "$PIKAFISH_SRC/pikafish.nnue" ]]; then
-  ln -s ../../../js/worker/pikafish.nnue "$PIKAFISH_SRC/pikafish.nnue"
+if [[ ! -f "$NNUE_FILE" ]]; then
+  echo "缺少 $NNUE_FILE，请先下载官方匹配网络。"
+  exit 1
 fi
 
 echo "使用官方 Pikafish $OFFICIAL_SHA 编译 pthread WebAssembly..."

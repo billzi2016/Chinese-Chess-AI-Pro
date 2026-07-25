@@ -11,13 +11,13 @@ console.log('== 核心单元测试: Pikafish WASM C++17 引擎 + NNUE 真实算�
 
 const workerPath = path.join(__dirname, '../js/worker/pikafish-engine.js');
 const wasmPath = path.join(__dirname, '../js/worker/pikafish-engine.wasm');
-const nnuePath = path.join(__dirname, '../js/worker/pikafish.nnue');
+const nnuePath = path.join(__dirname, '../nnue/pikafish-9e20a9a44415.nnue');
 
 // 1. 静态产物存在性与体积校验
 console.log('-> 步骤 [1/2] 校验 Pikafish WASM 引擎产物与 51MB NNUE 权重...');
 assert.ok(fs.existsSync(workerPath), 'pikafish-engine.js 必须存在');
 assert.ok(fs.existsSync(wasmPath), 'pikafish-engine.wasm 必须存在');
-assert.ok(fs.existsSync(nnuePath), 'pikafish.nnue 必须存在');
+assert.ok(fs.existsSync(nnuePath), 'pikafish-9e20a9a44415.nnue 必须存在');
 
 const wasmStats = fs.statSync(wasmPath);
 const nnueStats = fs.statSync(nnuePath);
