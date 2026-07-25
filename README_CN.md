@@ -1,8 +1,8 @@
 [English Version](README.md) | **中文文档** | 🌐 **在线体验 (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
-# Chinese-Chess-AI (WebAssembly 驱动的高性能中国象棋 AI 系统)
+# Chinese-Chess-AI-Pro (WebAssembly 驱动的高性能中国象棋 AI 系统)
 
-`Chinese-Chess-AI` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 运行的高性能中国象棋对弈与算力分析系统。
+`Chinese-Chess-AI-Pro` 是一款采用纯前端技术构建、基于 WebAssembly (WASM) 运行的高性能中国象棋对弈与算力分析系统。
 
 > **引擎升级迁移说明**：项目原先使用象眼（ElephantEye）引擎，现已全面升级并完整迁移至 **Pikafish**（基于 Stockfish 和 NNUE 神经网络评估的顶级中国象棋引擎），并编译为支持 `pthread` 多线程与 `SharedArrayBuffer` 的 WebAssembly 二进制。
 

@@ -1,8 +1,8 @@
 **English Version** | [中文文档](README_CN.md) | 🌐 **Live Demo (GitHub Pages)**: [https://billzi2016.github.io/Chinese-Chess-AI-Pro/](https://billzi2016.github.io/Chinese-Chess-AI-Pro/)
 
-# Chinese-Chess-AI (WebAssembly-Powered High-Performance Xiangqi AI)
+# Chinese-Chess-AI-Pro (WebAssembly-Powered High-Performance Xiangqi AI)
 
-`Chinese-Chess-AI` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
+`Chinese-Chess-AI-Pro` is a modern, high-performance Chinese Chess (Xiangqi) web application running entirely in the browser via WebAssembly (WASM).
 
 > **Note on Engine Migration**: The project originally used ElephantEye (Eleeye). It has now been completely upgraded and migrated to **Pikafish** (the state-of-the-art Xiangqi engine based on Stockfish and NNUE neural network evaluation), compiled to multi-threaded WebAssembly with `pthread` and `SharedArrayBuffer` support.
 

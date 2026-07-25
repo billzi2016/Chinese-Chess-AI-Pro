@@ -126,7 +126,7 @@
 
         <!-- 底部全套硬核技术栈说明区块 -->
         <div id="engine-note">
-            <p class="engine-tech">系统采用 NNUE 神经网络评估、Emscripten WebAssembly、共享内存 pthread 与置换表，在浏览器本地使用约 90% 逻辑核心搜索。基于标准 UCI 协议与 Web Worker 解耦，实时解析节点数、NPS、耗时与评估分；GitHub Pages 通过 COOP / COEP 隔离运行，不依赖服务器算力。</p>
+            <p class="engine-tech">系统采用 NNUE 神经网络评估（HalfKA_v2_hm 特征网）、Emscripten WASM、SIMD128 向量加速、256MB Zobrist 无锁哈希置换表与 Bitboard 位棋盘，在浏览器本地使用约 90% 逻辑核心进行单步 5 秒 Alpha-Beta/PVS 剪枝搜索。基于 UCI 标准协议与 Web Worker 解耦，由底层 C++ WASM 引擎接管规则校验，实时解析节点数、NPS、耗时与评估分；通过 COOP / COEP 跨源隔离支持 GitHub Pages 纯前端运行。</p>
         </div>
     </div>
 
