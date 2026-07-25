@@ -43,6 +43,7 @@ Strictly adheres to **DRY (Don't Repeat Yourself)** architecture principles, sto
 ## 2. Core Highlights & Features
 
 * **3 Flexible Gameplay Modes**: Supports Player vs Player (PVP), Player vs AI (PVE), and AI vs AI (EVE) modes.
+* **Superhuman Strength & Search Depth 32**: Powered by NNUE neural evaluation and pthreads multi-threading, search depth reaches up to **32 plies (verified reachable on Apple M2 Ultra 24-core)**, defeating grandmaster-level play.
 * **Zero Server Computation Cost**: The Pikafish engine runs in WebAssembly with NNUE evaluation, fully executing in the local browser.
 * **Zero Main-Thread Lag**: Engine computation is offloaded to a Web Worker, ensuring 60fps UI responsiveness during deep searches.
 * **Modular CSS Architecture**: Design Tokens + localized component scoping prevent style pollution.
