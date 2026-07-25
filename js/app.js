@@ -23,14 +23,20 @@ document.addEventListener('DOMContentLoaded', function () {
   let pendingHumanMove = null;
   let engineThinking = false;
 
+  let engineReady = false;
+
   // 初始化 Pikafish Worker 算力桥接
   try {
     worker = new Worker('./js/worker/pikafish-engine.js');
+    updateAiCurrentStatus('引擎正在加载 NNUE 权重 (51MB)，请稍候...');
     worker.postMessage({ type: 'INIT' });
 
     worker.onmessage = function (e) {
       const data = e.data || {};
-      if (data.type === 'INFO') {
+      if (data.type === 'READY') {
+        engineReady = true;
+        updateAiCurrentStatus('引擎已就绪');
+      } else if (data.type === 'INFO') {
         latestInfo = data.info;
         if (latestInfo) {
           updateAiCurrentStatus(`AI Alpha-Beta 剪枝搜寻中... (深度: ${latestInfo.depth || '-'})`);
