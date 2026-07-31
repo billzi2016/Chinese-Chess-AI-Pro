@@ -24,6 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
   let engineThinking = false;
 
   let engineReady = false;
+  const OPENING_MOVE_LIMIT = 20;
+  const OPENING_MOVETIME_MS = 12000;
+  const DEFAULT_MOVETIME_MS = 6000;
 
   // 初始化 Pikafish Worker 算力桥接
   try {
@@ -258,13 +261,18 @@ document.addEventListener('DOMContentLoaded', function () {
   function triggerAiThink() {
     const currentFen = game.fen();
     if (worker) {
+      const moveTime = getAiMoveTimeMs();
       engineThinking = true;
       worker.postMessage({
         type: 'SEARCH',
         fen: currentFen,
-        movetime: 5000
+        movetime: moveTime
       });
     }
+  }
+
+  function getAiMoveTimeMs() {
+    return moveCount < OPENING_MOVE_LIMIT ? OPENING_MOVETIME_MS : DEFAULT_MOVETIME_MS;
   }
 
   // 动态向右侧侧边栏表格追加真实数据行 (绝不填充 Mock 数据)

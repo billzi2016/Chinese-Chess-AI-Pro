@@ -86,7 +86,7 @@ The application follows a **"View UI - Business Rules - Engine Computation" 3-la
 |            Pikafish WASM Engine (C++17 Engine)          |
 |    - 51MB NNUE Eval Network (/pikafish.nnue)            |
 |    - Multi-thread Parallel Search (~90% CPU Cores)      |
-|    - UCI Protocol (go movetime 5000, info, bestmove)    |
+|    - UCI Protocol (dynamic go movetime, info, bestmove) |
 +---------------------------------------------------------+
 ```
 
@@ -100,4 +100,3 @@ This project is licensed under the **GNU General Public License v3.0 (GPLv3)**.
 * **Pikafish Engine Core**: Copyright (C) official-pikafish / Stockfish authors, licensed under GPLv3. See [LICENSE](LICENSE) or [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt).
 * **xiangqi.js Rule Engine**: BSD 2-Clause License. See [third-party/xiangqi.js](third-party/xiangqi.js).
 * **xiangqiboardjs Component**: MIT License. See [third-party/xiangqiboardjs](third-party/xiangqiboardjs).
-

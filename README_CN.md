@@ -86,7 +86,7 @@ python3 server.py
 |            Pikafish WASM 引擎 (C++17 算力核心)          |
 |    - 51MB NNUE 神经网络评估网络 (/pikafish.nnue)        |
 |    - 多线程并行搜索 (自动使用约 90% CPU 核心)           |
-|    - UCI 标准协议 (go movetime 5000, info, bestmove)    |
+|    - UCI 标准协议 (动态 go movetime, info, bestmove)    |
 +---------------------------------------------------------+
 ```
 
@@ -100,4 +100,3 @@ python3 server.py
 * **Pikafish 引擎核心**：Copyright (C) official-pikafish / Stockfish authors，遵循 GPLv3 协议。详见 [LICENSE](LICENSE) 或 [third-party/pikafish/Copying.txt](third-party/pikafish/Copying.txt)。
 * **xiangqi.js 规则库**：遵循 BSD 2-Clause 协议。详见 [third-party/xiangqi.js](third-party/xiangqi.js)。
 * **xiangqiboardjs 棋盘组件**：遵循 MIT 协议。详见 [third-party/xiangqiboardjs](third-party/xiangqiboardjs)。
-
