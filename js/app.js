@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let engineThinking = false;
 
   let engineReady = false;
-  const OPENING_MOVE_LIMIT = 20;
+  const OPENING_MOVE_LIMIT = 40;
   const OPENING_MOVETIME_MS = 12000;
   const DEFAULT_MOVETIME_MS = 6000;
 
